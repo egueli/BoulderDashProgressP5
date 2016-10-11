@@ -3,9 +3,9 @@ How I did it
 
 1. Download IntelliJ
 2. Create new Java project
-3. Create libs directory
+3. Create lib directory
 4. copy core.jar there
-5. Right-click libs directory, "Add as library..."
+5. Right-click lib directory, "Add as library..."
 6. Copy-paste the example code:
 
 package com.e_gueli;
@@ -28,3 +28,4 @@ public class Main extends PApplet {
     }
 }
 
+7. Tools > Kotlin > Configure Kotlin in project
