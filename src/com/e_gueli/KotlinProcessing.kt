@@ -3,15 +3,18 @@ package com.e_gueli
 import processing.core.PApplet
 import kotlin.reflect.jvm.jvmName
 
-const val columns = 8
-const val rows = 8
+const val columns = 40
+const val rows = 40
 const val probabilityOfAliveAtStart = 15
+const val cellSize:Float = 5f
 
 class KotlinP5 : PApplet() {
 
-    var emptyColumn = IntArray(rows)
-    var cells = Array(columns, {emptyColumn})
-    var cellsBuffer = Array(columns, {emptyColumn})
+    internal var alive = color(0, 200, 0)
+    internal var dead = color(0)
+
+    var cells = Array(columns, {IntArray(rows)})
+    var cellsBuffer = Array(columns, {IntArray(rows)})
 
     override fun settings() {
         size(200, 200)
@@ -35,7 +38,17 @@ class KotlinP5 : PApplet() {
     }
 
     override fun draw() {
-
+        for (x in IntRange(0, columns - 1)) {
+            for (y in IntRange(0, rows - 1)) {
+                if (cells[x][y]==1) {
+                    fill(alive)
+                }
+                else {
+                    fill(dead)
+                }
+                rect (x * cellSize, y * cellSize, cellSize, cellSize)
+            }
+        }
     }
 
     fun runMain() {
