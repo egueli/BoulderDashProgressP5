@@ -5,6 +5,7 @@ import kotlin.reflect.jvm.jvmName
 
 const val columns = 8
 const val rows = 8
+const val probabilityOfAliveAtStart = 15
 
 class KotlinP5 : PApplet() {
 
@@ -18,12 +19,25 @@ class KotlinP5 : PApplet() {
 
     override fun setup() {
         stroke(48)
+        background(0)
+
+        for (x in IntRange(0, columns - 1)) {
+            for (y in IntRange(0, rows - 1)) {
+                var state = random(100f)
+                if (state > probabilityOfAliveAtStart) {
+                    cells[x][y] = 0
+                }
+                else {
+                    cells[x][y] = 1
+                }
+            }
+        }
     }
 
     override fun draw() {
-        background(0)
-        ellipse(mouseX.toFloat(), mouseY.toFloat(), 20f, 20f)
+
     }
+
     fun runMain() {
         main(KotlinP5::class.jvmName)
     }
