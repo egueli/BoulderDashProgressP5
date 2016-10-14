@@ -72,11 +72,12 @@ class KotlinP5 : PApplet() {
 
     private fun processCell(x: Int, y: Int) {
         var neighbours = 0
-        for (xx in x - 1..x + 1) {
-            for (yy in y - 1..y + 1) {
-                if (xx !in 0..columns-1 || yy !in 0..rows-1) continue
-                if (xx == x && yy == y) continue
-                if (cellsBuffer[xx][yy] == 1) {
+        for (xx in -1..1) {
+            val nx = wrap(x + xx, 0, columns-1)
+            for (yy in -1..1) {
+                val ny = wrap(y + yy, 0, rows-1)
+                if (nx == x && ny == y) continue
+                if (cellsBuffer[nx][ny] == 1) {
                     neighbours++ // Check alive neighbours and count them
                 } // End of if
                 // End of if
@@ -93,6 +94,14 @@ class KotlinP5 : PApplet() {
                 cells[x][y] = 1 // Only if it has 3 neighbours
             }
         } // End of if
+    }
+
+    private fun wrap(i: Int, min: Int, max: Int): Int {
+        var out = i
+        val span = max - min + 1
+        while (out < min) out += span
+        while (out > max) out -= span
+        return out
     }
 
     fun runMain() {
