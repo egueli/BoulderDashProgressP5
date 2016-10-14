@@ -27,25 +27,15 @@ class KotlinP5 : PApplet() {
         for (x in 0..columns-1) {
             for (y in 0..rows-1) {
                 var state = random(100f)
-                if (state > probabilityOfAliveAtStart) {
-                    cells[x][y] = 0
-                }
-                else {
-                    cells[x][y] = 1
-                }
+                cells[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
             }
         }
     }
 
     override fun draw() {
-        for (x in IntRange(0, columns - 1)) {
-            for (y in IntRange(0, rows - 1)) {
-                if (cells[x][y]==1) {
-                    fill(alive)
-                }
-                else {
-                    fill(dead)
-                }
+        for (x in 0..columns - 1) {
+            for (y in 0..rows - 1) {
+                fill(if (cells[x][y]==1) alive else dead)
                 rect (x * cellSize, y * cellSize, cellSize, cellSize)
             }
         }
