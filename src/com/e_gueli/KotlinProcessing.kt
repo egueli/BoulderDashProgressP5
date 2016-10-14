@@ -24,8 +24,8 @@ class KotlinP5 : PApplet() {
         stroke(48)
         background(0)
 
-        for (x in IntRange(0, columns - 1)) {
-            for (y in IntRange(0, rows - 1)) {
+        for (x in 0..columns-1) {
+            for (y in 0..rows-1) {
                 var state = random(100f)
                 if (state > probabilityOfAliveAtStart) {
                     cells[x][y] = 0
