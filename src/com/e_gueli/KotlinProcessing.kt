@@ -74,12 +74,12 @@ class KotlinP5 : PApplet() {
         var neighbours = 0
         for (xx in x - 1..x + 1) {
             for (yy in y - 1..y + 1) {
-                if (xx in 0..columns-1 && yy in 0..rows-1) { // Make sure you are not out of bounds
-                    if (xx == x && yy == y) continue
-                    if (cellsBuffer[xx][yy] == 1) {
-                        neighbours++ // Check alive neighbours and count them
-                    } // End of if
+                if (xx !in 0..columns-1 || yy !in 0..rows-1) continue
+                if (xx == x && yy == y) continue
+                if (cellsBuffer[xx][yy] == 1) {
+                    neighbours++ // Check alive neighbours and count them
                 } // End of if
+                // End of if
             } // End of yy loop
         } //End of xx loop
 
