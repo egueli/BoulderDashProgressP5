@@ -8,7 +8,7 @@ const val rows = 40
 const val probabilityOfAliveAtStart = 15
 const val cellSize:Float = 5f
 
-class KotlinP5 : PApplet() {
+class KotlinProcessingGameOfLife : PApplet() {
 
     internal var alive = color(0, 200, 0)
     internal var dead = color(0)
@@ -105,6 +105,6 @@ class KotlinP5 : PApplet() {
     }
 
     fun runMain() {
-        main(KotlinP5::class.jvmName)
+        main(KotlinProcessingGameOfLife::class.jvmName)
     }
 }
