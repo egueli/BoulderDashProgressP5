@@ -71,11 +71,10 @@ class KotlinP5 : PApplet() {
     }
 
     private fun processCell(x: Int, y: Int) {
-        // And visit all the neighbours of each cell
-        var neighbours = 0 // We'll count the neighbours
+        var neighbours = 0
         for (xx in x - 1..x + 1) {
             for (yy in y - 1..y + 1) {
-                if (xx >= 0 && xx < columns && yy >= 0 && yy < rows) { // Make sure you are not out of bounds
+                if (xx in 0..columns-1 && yy in 0..rows-1) { // Make sure you are not out of bounds
                     if (xx == x && yy == y) continue
                     if (cellsBuffer[xx][yy] == 1) {
                         neighbours++ // Check alive neighbours and count them
@@ -83,7 +82,7 @@ class KotlinP5 : PApplet() {
                 } // End of if
             } // End of yy loop
         } //End of xx loop
-        
+
         // We've checked the neigbours: apply rules!
         if (cellsBuffer[x][y] == 1) { // The cell is alive: kill it if necessary
             if (neighbours < 2 || neighbours > 3) {
