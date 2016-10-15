@@ -18,8 +18,9 @@ class KotlinProcessingGameOfLife : PApplet() {
     // Variables for timer
     internal var interval:Long = 100
 
+    data class State(val cells: Array<IntArray> = Array(columns, {IntArray(rows)}))
 
-    var currentState = Array(columns, {IntArray(rows)})
+    var currentState = State()
 
     override fun settings() {
         size(200, 200)
@@ -31,7 +32,7 @@ class KotlinProcessingGameOfLife : PApplet() {
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
                 val state = random(100f)
-                currentState[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
+                currentState.cells[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
             }
         }
 
@@ -48,24 +49,24 @@ class KotlinProcessingGameOfLife : PApplet() {
     override fun draw() {
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                fill(if (currentState[x][y]==1) alive else dead)
+                fill(if (currentState.cells[x][y]==1) alive else dead)
                 rect (x * cellSize, y * cellSize, cellSize, cellSize)
             }
         }
     }
 
-    private fun doGoLStep(previousState : Array<IntArray>): Array<IntArray> {
-        val nextState = Array(columns, {IntArray(rows)})
+    private fun doGoLStep(previousState : State): State {
+        val nextState = State()
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                nextState[x][y] = previousState[x][y]
+                nextState.cells[x][y] = previousState.cells[x][y]
             }
         }
 
         // Visit each cell:
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                processCell(previousState, nextState, x, y)
+                processCell(previousState.cells, nextState.cells, x, y)
             }
         }
 
