@@ -18,8 +18,7 @@ class KotlinProcessingGameOfLife : PApplet() {
     internal var lastRecordedTime = 0
 
 
-    var cells = Array(columns, {IntArray(rows)})
-    var cellsBuffer = Array(columns, {IntArray(rows)})
+    var currentState = Array(columns, {IntArray(rows)})
 
     override fun settings() {
         size(200, 200)
@@ -32,7 +31,7 @@ class KotlinProcessingGameOfLife : PApplet() {
         for (x in 0..columns-1) {
             for (y in 0..rows-1) {
                 var state = random(100f)
-                cells[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
+                currentState[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
             }
         }
     }
@@ -40,7 +39,7 @@ class KotlinProcessingGameOfLife : PApplet() {
     override fun draw() {
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                fill(if (cells[x][y]==1) alive else dead)
+                fill(if (currentState[x][y]==1) alive else dead)
                 rect (x * cellSize, y * cellSize, cellSize, cellSize)
             }
         }
@@ -54,30 +53,35 @@ class KotlinProcessingGameOfLife : PApplet() {
     }
 
     private fun iteration() {
-        // Save cells to buffer (so we opeate with one array keeping the other intact)
+        currentState = doGoLStep(currentState)
+    }
+
+    private fun doGoLStep(previousState : Array<IntArray>): Array<IntArray> {
+        val nextState = Array(columns, {IntArray(rows)})
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                cellsBuffer[x][y] = cells[x][y]
+                nextState[x][y] = previousState[x][y]
             }
         }
 
         // Visit each cell:
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                processCell(x, y)
+                processCell(previousState, nextState, x, y)
             }
         }
 
+        return nextState
     }
 
-    private fun processCell(x: Int, y: Int) {
+    private fun processCell(currentState: Array<IntArray>, nextState: Array<IntArray>, x: Int, y: Int) {
         var neighbours = 0
         for (xx in -1..1) {
             val nx = wrap(x + xx, 0, columns-1)
             for (yy in -1..1) {
                 val ny = wrap(y + yy, 0, rows-1)
                 if (nx == x && ny == y) continue
-                if (cellsBuffer[nx][ny] == 1) {
+                if (currentState[nx][ny] == 1) {
                     neighbours++ // Check alive neighbours and count them
                 } // End of if
                 // End of if
@@ -85,13 +89,13 @@ class KotlinProcessingGameOfLife : PApplet() {
         } //End of xx loop
 
         // We've checked the neigbours: apply rules!
-        if (cellsBuffer[x][y] == 1) { // The cell is alive: kill it if necessary
+        if (currentState[x][y] == 1) { // The cell is alive: kill it if necessary
             if (neighbours < 2 || neighbours > 3) {
-                cells[x][y] = 0 // Die unless it has 2 or 3 neighbours
+                nextState[x][y] = 0 // Die unless it has 2 or 3 neighbours
             }
         } else { // The cell is dead: make it live if necessary
             if (neighbours == 3) {
-                cells[x][y] = 1 // Only if it has 3 neighbours
+                nextState[x][y] = 1 // Only if it has 3 neighbours
             }
         } // End of if
     }
