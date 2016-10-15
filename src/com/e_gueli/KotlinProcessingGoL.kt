@@ -1,8 +1,7 @@
 package com.e_gueli
 
 import processing.core.PApplet
-import rx.Observable
-import java.util.concurrent.TimeUnit
+import rx.lang.kotlin.observable
 import kotlin.reflect.jvm.jvmName
 
 const val columns = 40
@@ -20,7 +19,7 @@ class KotlinProcessingGameOfLife : PApplet() {
 
     data class State(val cells: Array<IntArray> = Array(columns, {IntArray(rows)}))
 
-    var currentState = State()
+    var stateToDraw = State()
 
     override fun settings() {
         size(200, 200)
@@ -29,27 +28,36 @@ class KotlinProcessingGameOfLife : PApplet() {
     override fun setup() {
         stroke(48)
 
+
+        noLoop()
+        observable<State> { subscriber -> kotlin.concurrent.thread {
+            var currentState = State()
+            initialize(currentState)
+            while (true) {
+                currentState = doGoLStep(currentState)
+                subscriber.onNext(currentState)
+                Thread.sleep(interval)
+            }
+        } }
+        .subscribe {
+            stateToDraw = it
+            redraw()
+        }
+    }
+
+    private fun initialize(currentState: State) {
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
                 val state = random(100f)
                 currentState.cells[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
             }
         }
-
-        noLoop()
-        Observable
-                .interval(interval, TimeUnit.MILLISECONDS)
-                .subscribe {
-                    currentState = doGoLStep(currentState)
-                    redraw()
-                }
-
     }
 
     override fun draw() {
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                fill(if (currentState.cells[x][y]==1) alive else dead)
+                fill(if (stateToDraw.cells[x][y]==1) alive else dead)
                 rect (x * cellSize, y * cellSize, cellSize, cellSize)
             }
         }
