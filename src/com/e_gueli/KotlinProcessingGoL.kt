@@ -1,6 +1,8 @@
 package com.e_gueli
 
 import processing.core.PApplet
+import rx.Observable
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.jvm.jvmName
 
 const val columns = 40
@@ -14,7 +16,7 @@ class KotlinProcessingGameOfLife : PApplet() {
     internal var dead = color(0)
 
     // Variables for timer
-    internal var interval = 100
+    internal var interval:Long = 100
     internal var lastRecordedTime = 0
 
 
@@ -26,14 +28,23 @@ class KotlinProcessingGameOfLife : PApplet() {
 
     override fun setup() {
         stroke(48)
-        background(0)
 
-        for (x in 0..columns-1) {
-            for (y in 0..rows-1) {
+        for (x in 0..columns - 1) {
+            for (y in 0..rows - 1) {
                 var state = random(100f)
                 currentState[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
             }
         }
+
+        noLoop()
+        Observable
+                .interval(interval, TimeUnit.MILLISECONDS)
+                .subscribe {
+                    println(it)
+                    iteration()
+                    redraw()
+                }
+
     }
 
     override fun draw() {
