@@ -17,7 +17,6 @@ class KotlinProcessingGameOfLife : PApplet() {
 
     // Variables for timer
     internal var interval:Long = 100
-    internal var lastRecordedTime = 0
 
 
     var currentState = Array(columns, {IntArray(rows)})
@@ -31,7 +30,7 @@ class KotlinProcessingGameOfLife : PApplet() {
 
         for (x in 0..columns - 1) {
             for (y in 0..rows - 1) {
-                var state = random(100f)
+                val state = random(100f)
                 currentState[x][y] = if (state > probabilityOfAliveAtStart) 0 else 1
             }
         }
@@ -40,8 +39,7 @@ class KotlinProcessingGameOfLife : PApplet() {
         Observable
                 .interval(interval, TimeUnit.MILLISECONDS)
                 .subscribe {
-                    println(it)
-                    iteration()
+                    currentState = doGoLStep(currentState)
                     redraw()
                 }
 
@@ -54,17 +52,6 @@ class KotlinProcessingGameOfLife : PApplet() {
                 rect (x * cellSize, y * cellSize, cellSize, cellSize)
             }
         }
-
-        // Iterate if timer ticks
-        if (millis() - lastRecordedTime > interval) {
-            iteration()
-            lastRecordedTime = millis()
-        }
-
-    }
-
-    private fun iteration() {
-        currentState = doGoLStep(currentState)
     }
 
     private fun doGoLStep(previousState : Array<IntArray>): Array<IntArray> {
