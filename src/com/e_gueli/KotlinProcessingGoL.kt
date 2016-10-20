@@ -1,7 +1,14 @@
 package com.e_gueli
 
 import processing.core.PApplet
+import rx.Observable
+import rx.Scheduler
+import rx.Subscriber
+import rx.Subscription
+import rx.functions.Action0
 import rx.lang.kotlin.observable
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.jvm.jvmName
 
 const val columns = 40
@@ -21,27 +28,29 @@ class KotlinProcessingGameOfLife : PApplet() {
 
     var stateToDraw = State()
 
+    val DrawEvents: Observable<Long> = Observable.create(DrawOnSubscribe)
+
     override fun settings() {
         size(200, 200)
     }
 
     override fun setup() {
         stroke(48)
+        var currentState = State()
+        initialize(currentState)
 
+        DrawEvents.subscribe {
+            currentState = doGoLStep(currentState)
+            stateToDraw = currentState
+        }
 
-        noLoop()
-        observable<State> { subscriber -> kotlin.concurrent.thread {
-            var currentState = State()
-            initialize(currentState)
-            while (true) {
-                currentState = doGoLStep(currentState)
-                subscriber.onNext(currentState)
-                Thread.sleep(interval)
+        DrawEvents.subscribe {
+            for (x in 0..columns - 1) {
+                for (y in 0..rows - 1) {
+                    fill(if (stateToDraw.cells[x][y]==1) alive else dead)
+                    rect (x * cellSize, y * cellSize, cellSize, cellSize)
+                }
             }
-        } }
-        .subscribe {
-            stateToDraw = it
-            redraw()
         }
     }
 
@@ -55,12 +64,9 @@ class KotlinProcessingGameOfLife : PApplet() {
     }
 
     override fun draw() {
-        for (x in 0..columns - 1) {
-            for (y in 0..rows - 1) {
-                fill(if (stateToDraw.cells[x][y]==1) alive else dead)
-                rect (x * cellSize, y * cellSize, cellSize, cellSize)
-            }
-        }
+        val millis = millis().toLong()
+        DrawScheduler.onDraw(millis)
+        DrawOnSubscribe.onDraw(millis)
     }
 
     private fun doGoLStep(previousState : State): State {
@@ -117,5 +123,80 @@ class KotlinProcessingGameOfLife : PApplet() {
 
     fun runMain() {
         main(KotlinProcessingGameOfLife::class.jvmName)
+    }
+}
+
+object DrawScheduler : Scheduler() {
+    val worker = DrawWorker()
+    override fun createWorker(): Worker {
+        return worker
+    }
+
+    fun onDraw(currentTime: Long) {
+        println("onDraw($currentTime)")
+        worker.runEventsAt(currentTime)
+    }
+}
+
+class DrawWorker : Scheduler.Worker() {
+
+    var unsubscribed = false
+    var events: TreeMap<Long, MutableList<Action0>> = TreeMap()
+    var currentTime: Long = 0
+
+    override fun schedule(p0: Action0?): Subscription {
+        schedule(p0, 0, TimeUnit.MILLISECONDS)
+        return this
+    }
+
+    override fun schedule(p0: Action0?, p1: Long, p2: TimeUnit?): Subscription {
+        if (p2 != TimeUnit.MILLISECONDS)
+            throw UnsupportedOperationException("TODO")
+
+        val time = currentTime + p1
+        if (p0 != null) {
+            val actionsNow: MutableList<Action0>
+            if (events.containsKey(time)) {
+                actionsNow = events[time]!!
+            }
+            else {
+                actionsNow = ArrayList()
+                events.put(time, actionsNow)
+            }
+            actionsNow.add(p0)
+            println("scheduled action $p0 at $time")
+        }
+        return this
+    }
+
+    override fun isUnsubscribed(): Boolean {
+        return unsubscribed
+    }
+
+    override fun unsubscribe() {
+        unsubscribed = true
+    }
+
+    fun runEventsAt(time: Long) {
+        val pastOrNow = events.keys.filter { it <= time }
+        for (t in pastOrNow) {
+            println("time = $time, running ${events[t]!!.size} scheduled at time $t")
+            events[t]!!.forEach(Action0::call)
+            events.remove(t)
+        }
+        currentTime = time
+    }
+
+}
+
+object DrawOnSubscribe : Observable.OnSubscribe<Long> {
+    val subscribers = ArrayList<Subscriber<in Long>>()
+    override fun call(p0: Subscriber<in Long>?) {
+        if (p0 != null)
+            subscribers.add(p0)
+    }
+
+    fun onDraw(millis: Long) {
+        subscribers.forEach { it.onNext(millis) }
     }
 }
