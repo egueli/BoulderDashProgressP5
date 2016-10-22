@@ -6,6 +6,7 @@ import rx.Scheduler
 import rx.Subscriber
 import rx.Subscription
 import rx.functions.Action0
+import rx.functions.Func1
 import rx.lang.kotlin.observable
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -23,6 +24,7 @@ class KotlinProcessingGameOfLife : PApplet() {
 
     // Variables for timer
     internal var interval:Long = 100
+    internal var lastRecordedTime:Long = 0
 
     data class State(val cells: Array<IntArray> = Array(columns, {IntArray(rows)}))
 
@@ -39,7 +41,13 @@ class KotlinProcessingGameOfLife : PApplet() {
         var currentState = State()
         initialize(currentState)
 
-        DrawEvents.subscribe {
+        DrawEvents
+                .filter {
+                    val itsTime = millis() >= (lastRecordedTime + interval)
+                    if (itsTime) lastRecordedTime += interval
+                    itsTime
+                }
+                .subscribe {
             currentState = doGoLStep(currentState)
             stateToDraw = currentState
         }
