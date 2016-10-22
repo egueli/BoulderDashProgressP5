@@ -48,18 +48,19 @@ class KotlinProcessingGameOfLife : PApplet() {
                     itsTime
                 }
                 .subscribe {
-            currentState = doGoLStep(currentState)
-            stateToDraw = currentState
-        }
-
-        DrawEvents.subscribe {
-            for (x in 0..columns - 1) {
-                for (y in 0..rows - 1) {
-                    fill(if (stateToDraw.cells[x][y]==1) alive else dead)
-                    rect (x * cellSize, y * cellSize, cellSize, cellSize)
+                    currentState = doGoLStep(currentState)
+                    stateToDraw = currentState
                 }
-            }
-        }
+
+        DrawEvents
+                .subscribe {
+                    for (x in 0..columns - 1) {
+                        for (y in 0..rows - 1) {
+                            fill(if (stateToDraw.cells[x][y]==1) alive else dead)
+                            rect (x * cellSize, y * cellSize, cellSize, cellSize)
+                        }
+                    }
+                }
     }
 
     private fun initialize(currentState: State) {
