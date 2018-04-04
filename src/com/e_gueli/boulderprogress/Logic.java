@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-class BdpLogic {
+class Logic {
     private List<Cell> cells;
     private final int fieldWidth;
     private final int fieldHeight;
@@ -12,7 +12,7 @@ class BdpLogic {
 
     private boolean cellMakingEnabled = true;
 
-    BdpLogic(int fieldWidth, int fieldHeight) {
+    Logic(int fieldWidth, int fieldHeight) {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
         cells = new LinkedList<>();

@@ -12,7 +12,7 @@ public class BoulderDashProgress extends PApplet {
 
     private static final boolean testMode = false;
 
-    private BdpLogic bdpLogic = new BdpLogic(fieldWidth, fieldHeight);
+    private Logic logic = new Logic(fieldWidth, fieldHeight);
 
     public void settings() {
         //size (cellSize * fieldWidth, cellSize * fieldHeight);
@@ -25,9 +25,9 @@ public class BoulderDashProgress extends PApplet {
         ellipseMode(CORNER);
 
         if (testMode) {
-            bdpLogic.setCellMakingEnabled(false);
-            bdpLogic.addCell(2, 6);
-            bdpLogic.addCell(2, 0);
+            logic.setCellMakingEnabled(false);
+            logic.addCell(2, 6);
+            logic.addCell(2, 0);
         }
     }
 
@@ -43,7 +43,7 @@ public class BoulderDashProgress extends PApplet {
     private void drawField() {
         drawFieldBase();
 
-        for (Cell cell : bdpLogic.getCells()) {
+        for (Cell cell : logic.getCells()) {
             if (cell.settled) {
                 fill(color(0, 200, 0));
                 noStroke();
@@ -71,7 +71,7 @@ public class BoulderDashProgress extends PApplet {
         if (millis() - lastRecordedTime <= interval) {
             return;
         }
-        bdpLogic.iteration();
+        logic.iteration();
         lastRecordedTime = millis();
     }
 
