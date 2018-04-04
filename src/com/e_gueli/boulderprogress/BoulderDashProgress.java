@@ -9,33 +9,6 @@ import java.util.LinkedList;
 public class BoulderDashProgress extends PApplet {
 
 
-    static class Cell {
-        final int x;
-        final int y;
-        final boolean settled;
-        final int id;
-        private static int nextId = 0;
-
-        Cell(int x, int y) {
-            this(x, y, false, nextId++);
-        }
-        private Cell(int x, int y, boolean settled, int id) {
-            this.x = x;
-            this.y = y;
-            this.settled = settled;
-            this.id = id;
-        }
-        Cell cloneSettled() {
-            return new Cell(x, y, true, id);
-        }
-        Cell cloneDown(int horizontalOffset) {
-            return new Cell(x+horizontalOffset, y+1, false, id);
-        }
-    }
-
-
-
-
     // Size of cells
     final int cellSize = 50;
     final int fieldWidth = 5;
@@ -53,7 +26,7 @@ public class BoulderDashProgress extends PApplet {
 
     public void settings() {
         //size (cellSize * fieldWidth, cellSize * fieldHeight);
-        size (250, 350);
+        size(250, 350);
     }
 
     public void setup() {
@@ -70,29 +43,27 @@ public class BoulderDashProgress extends PApplet {
     public void draw() {
         background(0);
 
-        for (int x=0; x<fieldWidth; x++) {
-            for (int y=0; y<fieldHeight; y++) {
+        for (int x = 0; x < fieldWidth; x++) {
+            for (int y = 0; y < fieldHeight; y++) {
                 Cell cell = cellAt(x, y);
                 if (cell != null) {
                     if (cell.settled) {
                         fill(color(0, 200, 0));
                         noStroke();
-                    }
-                    else {
+                    } else {
                         noFill();
                         stroke(255);
                     }
-                }
-                else {
+                } else {
                     stroke(48);
                     noFill();
                 }
-                ellipse (x*cellSize, y*cellSize, cellSize, cellSize);
+                ellipse(x * cellSize, y * cellSize, cellSize, cellSize);
 
             }
         }
         // Iterate if timer ticks
-        if (millis()-lastRecordedTime>interval) {
+        if (millis() - lastRecordedTime > interval) {
             if (!pause) {
                 iteration();
                 lastRecordedTime = millis();
@@ -101,7 +72,7 @@ public class BoulderDashProgress extends PApplet {
     }
 
     Cell cellAt(int x, int y) {
-        for (Cell cell: cells) {
+        for (Cell cell : cells) {
             if (cell.x == x && cell.y == y) {
                 return cell;
             }
@@ -112,7 +83,7 @@ public class BoulderDashProgress extends PApplet {
     void iteration() { // When the clock ticks
         List<Cell> newCells = new LinkedList<Cell>();
 
-        for (Cell cell: cells) {
+        for (Cell cell : cells) {
             newCells.add(updateCell(cell));
         }
 
@@ -136,12 +107,12 @@ public class BoulderDashProgress extends PApplet {
 
         // From this below, the cell is going to fall.
 
-        Cell cellBottomLeft = cellAt(cell.x-1, cell.y+1);
+        Cell cellBottomLeft = cellAt(cell.x - 1, cell.y + 1);
         boolean baseLeft = cell.x == 0 || (cellBottomLeft != null && cellBottomLeft.settled);
-        Cell cellBottomCenter = cellAt(cell.x, cell.y+1);
+        Cell cellBottomCenter = cellAt(cell.x, cell.y + 1);
         boolean baseCenter = cellBottomCenter != null && cellBottomCenter.settled;
-        Cell cellBottomRight = cellAt(cell.x+1, cell.y+1);
-        boolean baseRight = cell.x == fieldWidth-1 || (cellBottomRight != null && cellBottomRight.settled);
+        Cell cellBottomRight = cellAt(cell.x + 1, cell.y + 1);
+        boolean baseRight = cell.x == fieldWidth - 1 || (cellBottomRight != null && cellBottomRight.settled);
 
         // Cells with a stable base stay still
         if (baseLeft && baseCenter && baseRight) {
@@ -163,7 +134,7 @@ public class BoulderDashProgress extends PApplet {
         }
         // Cells with an unstable base (i.e. with no left and no right cell below)
         // will fall at a random side
-        int fallDirection = ((int)random(2) == 0) ? -1 : 1;
+        int fallDirection = ((int) random(2) == 0) ? -1 : 1;
         return cell.cloneDown(fallDirection);
     }
 
@@ -187,10 +158,9 @@ public class BoulderDashProgress extends PApplet {
         if (waitCount > 0) return;
 
 
-
         int[] heights = new int[fieldWidth];
-        for (int x=0; x<fieldWidth; x++) {
-            int y = fieldHeight-1;
+        for (int x = 0; x < fieldWidth; x++) {
+            int y = fieldHeight - 1;
             while (y >= 0 && cellAt(x, y) != null) {
                 y--;
             }
@@ -198,7 +168,7 @@ public class BoulderDashProgress extends PApplet {
         }
 
         List<Integer> availableColumns = new ArrayList<Integer>();
-        for (int x=0; x<fieldWidth; x++) {
+        for (int x = 0; x < fieldWidth; x++) {
             if (heights[x] >= 0) {
                 availableColumns.add(x);
             }
@@ -209,7 +179,7 @@ public class BoulderDashProgress extends PApplet {
             return;
         }
 
-        int i = (int)(random(availableColumns.size()));
+        int i = (int) (random(availableColumns.size()));
         int x = availableColumns.get(i);
         cells.add(new Cell(x, heights[x]));
     }
