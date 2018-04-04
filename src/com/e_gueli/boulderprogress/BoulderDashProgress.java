@@ -13,6 +13,7 @@ public class BoulderDashProgress extends PApplet {
     private static final boolean testMode = false;
 
     private Logic logic = new Logic(fieldWidth, fieldHeight);
+    private CellMaker cellMaker = new CellMaker(logic);
 
     public void settings() {
         //size (cellSize * fieldWidth, cellSize * fieldHeight);
@@ -25,7 +26,6 @@ public class BoulderDashProgress extends PApplet {
         ellipseMode(CORNER);
 
         if (testMode) {
-            logic.setCellMakingEnabled(false);
             logic.addCell(2, 6);
             logic.addCell(2, 0);
         }
@@ -72,6 +72,9 @@ public class BoulderDashProgress extends PApplet {
             return;
         }
         logic.iteration();
+        if (!testMode) {
+            cellMaker.iteration();
+        }
         lastRecordedTime = millis();
     }
 

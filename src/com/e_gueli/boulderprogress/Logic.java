@@ -8,9 +8,6 @@ class Logic {
     private List<Cell> cells;
     private final int fieldWidth;
     private final int fieldHeight;
-    private int waitCount;
-
-    private boolean cellMakingEnabled = true;
 
     Logic(int fieldWidth, int fieldHeight) {
         this.fieldWidth = fieldWidth;
@@ -26,22 +23,18 @@ class Logic {
         }
 
         cells = newCells;
+    }
 
-        if (cellMakingEnabled) {
-            makeNewCells();
-        }
+    int getFieldWidth() {
+        return fieldWidth;
+    }
+
+    int getFieldHeight() {
+        return fieldHeight;
     }
 
     Iterable<Cell> getCells() {
         return cells;
-    }
-
-    public boolean isCellMakingEnabled() {
-        return cellMakingEnabled;
-    }
-
-    public void setCellMakingEnabled(boolean cellMakingEnabled) {
-        this.cellMakingEnabled = cellMakingEnabled;
     }
 
     void addCell(int x, int y) {
@@ -50,6 +43,10 @@ class Logic {
         }
 
         cells.add(new Cell(x, y));
+    }
+
+    void clear() {
+        cells.clear();
     }
 
     private Cell updateCell(Cell cell) {
@@ -100,57 +97,13 @@ class Logic {
         }
     }
 
-    private Cell cellAt(int x, int y) {
+    Cell cellAt(int x, int y) {
         for (Cell cell : cells) {
             if (cell.x == x && cell.y == y) {
                 return cell;
             }
         }
         return null;
-    }
-
-    private void makeNewCells() {
-        boolean allSettled = true;
-        for (Cell cell : cells) {
-            if (!cell.settled) {
-                allSettled = false;
-                break;
-            }
-        }
-
-        if (!allSettled) {
-            waitCount = 5;
-            return;
-        }
-
-        waitCount--;
-        if (waitCount > 0) return;
-
-
-        int[] heights = new int[fieldWidth];
-        for (int x = 0; x < fieldWidth; x++) {
-            int y = fieldHeight - 1;
-            while (y >= 0 && cellAt(x, y) != null) {
-                y--;
-            }
-            heights[x] = y;
-        }
-
-        List<Integer> availableColumns = new ArrayList<>();
-        for (int x = 0; x < fieldWidth; x++) {
-            if (heights[x] >= 0) {
-                availableColumns.add(x);
-            }
-        }
-
-        if (availableColumns.isEmpty()) {
-            cells.clear();
-            return;
-        }
-
-        int i = (int) (random(availableColumns.size()));
-        int x = availableColumns.get(i);
-        cells.add(new Cell(x, heights[x]));
     }
 
     private double random(int max) {
