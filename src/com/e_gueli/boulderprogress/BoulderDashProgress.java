@@ -10,19 +10,15 @@ public class BoulderDashProgress extends PApplet {
 
 
     // Size of cells
-    final int cellSize = 50;
-    final int fieldWidth = 5;
-    final int fieldHeight = 7;
+    private static final int cellSize = 50;
+    private static final int fieldWidth = 5;
+    private static final int fieldHeight = 7;
 
-    final int interval = 250;
-    int lastRecordedTime = 0;
-    int frameNumber = 0;
+    private static final int interval = 250;
+    private int lastRecordedTime = 0;
 
-
-    List<Cell> cells;
-
-    // Pause
-    boolean pause = false;
+    private List<Cell> cells;
+    private int waitCount;
 
     public void settings() {
         //size (cellSize * fieldWidth, cellSize * fieldHeight);
@@ -32,7 +28,7 @@ public class BoulderDashProgress extends PApplet {
     public void setup() {
 
         // Instantiate arrays
-        cells = new LinkedList<Cell>();
+        cells = new LinkedList<>();
 
         textSize(18);
         textAlign(CENTER, CENTER);
@@ -43,6 +39,12 @@ public class BoulderDashProgress extends PApplet {
     public void draw() {
         background(0);
 
+        drawField();
+        updateField();
+
+    }
+
+    private void drawField() {
         for (int x = 0; x < fieldWidth; x++) {
             for (int y = 0; y < fieldHeight; y++) {
                 Cell cell = cellAt(x, y);
@@ -62,16 +64,18 @@ public class BoulderDashProgress extends PApplet {
 
             }
         }
-        // Iterate if timer ticks
-        if (millis() - lastRecordedTime > interval) {
-            if (!pause) {
-                iteration();
-                lastRecordedTime = millis();
-            }
-        }
     }
 
-    Cell cellAt(int x, int y) {
+    private void updateField() {
+        // Iterate if timer ticks
+        if (millis() - lastRecordedTime <= interval) {
+            return;
+        }
+        iteration();
+        lastRecordedTime = millis();
+    }
+
+    private Cell cellAt(int x, int y) {
         for (Cell cell : cells) {
             if (cell.x == x && cell.y == y) {
                 return cell;
@@ -80,8 +84,8 @@ public class BoulderDashProgress extends PApplet {
         return null;
     }
 
-    void iteration() { // When the clock ticks
-        List<Cell> newCells = new LinkedList<Cell>();
+    private void iteration() { // When the clock ticks
+        List<Cell> newCells = new LinkedList<>();
 
         for (Cell cell : cells) {
             newCells.add(updateCell(cell));
@@ -90,11 +94,9 @@ public class BoulderDashProgress extends PApplet {
         cells = newCells;
 
         makeNewCells();
-
-        frameNumber++;
     }
 
-    Cell updateCell(Cell cell) {
+    private Cell updateCell(Cell cell) {
         // Settled cells stay as they are.
         if (cell.settled) {
             return cell;
@@ -135,12 +137,11 @@ public class BoulderDashProgress extends PApplet {
         // Cells with an unstable base (i.e. with no left and no right cell below)
         // will fall at a random side
         int fallDirection = ((int) random(2) == 0) ? -1 : 1;
+        print ("random fall at direction " + fallDirection);
         return cell.cloneDown(fallDirection);
     }
 
-    int waitCount;
-
-    void makeNewCells() {
+    private void makeNewCells() {
         boolean allSettled = true;
         for (Cell cell : cells) {
             if (!cell.settled) {
@@ -167,7 +168,7 @@ public class BoulderDashProgress extends PApplet {
             heights[x] = y;
         }
 
-        List<Integer> availableColumns = new ArrayList<Integer>();
+        List<Integer> availableColumns = new ArrayList<>();
         for (int x = 0; x < fieldWidth; x++) {
             if (heights[x] >= 0) {
                 availableColumns.add(x);
