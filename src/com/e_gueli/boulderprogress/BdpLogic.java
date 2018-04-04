@@ -10,6 +10,8 @@ class BdpLogic {
     private final int fieldHeight;
     private int waitCount;
 
+    private boolean cellMakingEnabled = true;
+
     BdpLogic(int fieldWidth, int fieldHeight) {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
@@ -25,11 +27,29 @@ class BdpLogic {
 
         cells = newCells;
 
-        makeNewCells();
+        if (cellMakingEnabled) {
+            makeNewCells();
+        }
     }
 
     Iterable<Cell> getCells() {
         return cells;
+    }
+
+    public boolean isCellMakingEnabled() {
+        return cellMakingEnabled;
+    }
+
+    public void setCellMakingEnabled(boolean cellMakingEnabled) {
+        this.cellMakingEnabled = cellMakingEnabled;
+    }
+
+    void addCell(int x, int y) {
+        if (cellAt(x, y) != null) {
+            throw new IllegalStateException(String.format("there is already a cell at (%d, %d)", x, y));
+        }
+
+        cells.add(new Cell(x, y));
     }
 
     private Cell updateCell(Cell cell) {
@@ -62,19 +82,22 @@ class BdpLogic {
             return cell.cloneDown(0);
         }
 
+        // Cells with an unstable base (i.e. with no left and no right cell below)
+        // will fall at a random side
+        if (!baseLeft && !baseRight) {
+            int fallDirection = ((int) random(2) == 0) ? -1 : 1;
+            System.out.println("random fall at direction " + fallDirection);
+            return cell.cloneDown(fallDirection);
+        }
+
         // Cells with an half-unstable base (i.e. with missing left or right cell below)
         // will fall to the empty side
         if (!baseLeft) {
             return cell.cloneDown(-1);
         }
-        if (!baseRight) {
+        else {
             return cell.cloneDown(1);
         }
-        // Cells with an unstable base (i.e. with no left and no right cell below)
-        // will fall at a random side
-        int fallDirection = ((int) random(2) == 0) ? -1 : 1;
-        System.out.println("random fall at direction " + fallDirection);
-        return cell.cloneDown(fallDirection);
     }
 
     private Cell cellAt(int x, int y) {

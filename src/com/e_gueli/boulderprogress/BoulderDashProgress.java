@@ -10,6 +10,8 @@ public class BoulderDashProgress extends PApplet {
     private static final int interval = 250;
     private int lastRecordedTime = 0;
 
+    private static final boolean testMode = false;
+
     private BdpLogic bdpLogic = new BdpLogic(fieldWidth, fieldHeight);
 
     public void settings() {
@@ -21,6 +23,12 @@ public class BoulderDashProgress extends PApplet {
         textSize(18);
         textAlign(CENTER, CENTER);
         ellipseMode(CORNER);
+
+        if (testMode) {
+            bdpLogic.setCellMakingEnabled(false);
+            bdpLogic.addCell(2, 6);
+            bdpLogic.addCell(2, 0);
+        }
     }
 
 
