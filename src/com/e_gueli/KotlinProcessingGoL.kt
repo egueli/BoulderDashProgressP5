@@ -1,8 +1,6 @@
 package com.e_gueli
 
 import processing.core.PApplet
-import java.util.*
-import java.util.concurrent.TimeUnit
 import kotlin.reflect.jvm.jvmName
 
 const val columns = 40
@@ -12,8 +10,8 @@ const val cellSize:Float = 5f
 
 class KotlinProcessingGameOfLife : PApplet() {
 
-    internal var alive = color(0, 200, 0)
-    internal var dead = color(0)
+    internal var aliveColor = color(0, 200, 0)
+    internal var deadColor = color(0)
 
     // Variables for timer
     internal var interval:Long = 100
@@ -22,8 +20,6 @@ class KotlinProcessingGameOfLife : PApplet() {
     data class State(val cells: Array<IntArray> = Array(columns, {IntArray(rows)}))
 
     var currentState = State()
-    var stateToDraw = State()
-
 
     override fun settings() {
         size(200, 200)
@@ -44,24 +40,22 @@ class KotlinProcessingGameOfLife : PApplet() {
     }
 
     override fun draw() {
-        val millis = millis().toLong()
+        if (!isTimeToDraw()) return
 
-        val itsTime = millis() >= (lastRecordedTime + interval)
-        if (itsTime) {
-            lastRecordedTime += interval
+        lastRecordedTime += interval
 
-            currentState = doGoLStep(currentState)
-            stateToDraw = currentState
-
-            for (x in 0..columns - 1) {
-                for (y in 0..rows - 1) {
-                    fill(if (stateToDraw.cells[x][y]==1) alive else dead)
-                    rect (x * cellSize, y * cellSize, cellSize, cellSize)
-                }
+        currentState = doGoLStep(currentState)
+        for (x in 0..columns - 1) {
+            for (y in 0..rows - 1) {
+                fill(if (currentState.cells[x][y]==1) aliveColor else deadColor)
+                rect (x * cellSize, y * cellSize, cellSize, cellSize)
             }
-
         }
 
+    }
+
+    private fun isTimeToDraw(): Boolean {
+        return millis() >= (lastRecordedTime + interval)
     }
 
     private fun doGoLStep(previousState : State): State {
