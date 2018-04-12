@@ -4,24 +4,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-class BoulderField {
+class BoulderPhysics {
     private List<Boulder> boulders;
     private final int fieldWidth;
     private final int fieldHeight;
     private final Random rng;
 
-    BoulderField(int fieldWidth, int fieldHeight, Random rng) {
+    BoulderPhysics(int fieldWidth, int fieldHeight, Random rng) {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
         this.rng = rng;
         boulders = new LinkedList<>();
     }
 
-    void iteration() {
+    void update() {
         List<Boulder> newBoulders = new LinkedList<>();
 
         for (Boulder boulder : boulders) {
-            newBoulders.add(updateCell(boulder));
+            newBoulders.add(updateBoulder(boulder));
         }
 
         boulders = newBoulders;
@@ -39,9 +39,9 @@ class BoulderField {
         return boulders;
     }
 
-    void addCell(int x, int y) {
-        if (cellAt(x, y) != null) {
-            throw new IllegalStateException(String.format("there is already a cell at (%d, %d)", x, y));
+    void addBoulder(int x, int y) {
+        if (boulderAt(x, y) != null) {
+            throw new IllegalStateException(String.format("there is already a boulder at (%d, %d)", x, y));
         }
 
         boulders.add(new Boulder(x, y));
@@ -51,37 +51,37 @@ class BoulderField {
         boulders.clear();
     }
 
-    private Boulder updateCell(Boulder boulder) {
+    private Boulder updateBoulder(Boulder boulder) {
         // Settled boulders stay as they are.
         if (boulder.settled) {
             return boulder;
         }
 
-        // Cells at the bottom are settled.
+        // Boulders at the bottom are settled.
         if (boulder.y == fieldHeight - 1) {
             return boulder.cloneSettled();
         }
 
         // From this below, the boulder is going to fall.
 
-        Boulder boulderBottomLeft = cellAt(boulder.x - 1, boulder.y + 1);
+        Boulder boulderBottomLeft = boulderAt(boulder.x - 1, boulder.y + 1);
         boolean baseLeft = boulder.x == 0 || (boulderBottomLeft != null && boulderBottomLeft.settled);
-        Boulder boulderBottomCenter = cellAt(boulder.x, boulder.y + 1);
+        Boulder boulderBottomCenter = boulderAt(boulder.x, boulder.y + 1);
         boolean baseCenter = boulderBottomCenter != null && boulderBottomCenter.settled;
-        Boulder boulderBottomRight = cellAt(boulder.x + 1, boulder.y + 1);
+        Boulder boulderBottomRight = boulderAt(boulder.x + 1, boulder.y + 1);
         boolean baseRight = boulder.x == fieldWidth - 1 || (boulderBottomRight != null && boulderBottomRight.settled);
 
-        // Cells with a stable base stay still
+        // Boulders with a stable base stay still
         if (baseLeft && baseCenter && baseRight) {
             return boulder.cloneSettled();
         }
 
-        // Cells with nothing below will fall
+        // Boulders with nothing below will fall
         if (!baseCenter) {
             return boulder.cloneDown(0);
         }
 
-        // Cells with an unstable base (i.e. with no left and no right boulder below)
+        // Boulders with an unstable base (i.e. with no left and no right boulder below)
         // will fall at a random side
         if (!baseLeft && !baseRight) {
             int fallDirection = (random(2) == 0) ? -1 : 1;
@@ -89,7 +89,7 @@ class BoulderField {
             return boulder.cloneDown(fallDirection);
         }
 
-        // Cells with an half-unstable base (i.e. with missing left or right boulder below)
+        // Boulders with an half-unstable base (i.e. with missing left or right boulder below)
         // will fall to the empty side
         if (!baseLeft) {
             return boulder.cloneDown(-1);
@@ -99,7 +99,7 @@ class BoulderField {
         }
     }
 
-    Boulder cellAt(int x, int y) {
+    Boulder boulderAt(int x, int y) {
         for (Boulder boulder : boulders) {
             if (boulder.x == x && boulder.y == y) {
                 return boulder;

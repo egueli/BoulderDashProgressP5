@@ -5,7 +5,7 @@ import processing.core.PApplet;
 import java.util.Random;
 
 public class BoulderDashProgress extends PApplet {
-    private static final int cellSize = 50;
+    private static final int circleSize = 50;
     private static final int fieldWidth = 5;
     private static final int fieldHeight = 7;
 
@@ -15,13 +15,13 @@ public class BoulderDashProgress extends PApplet {
     private static final boolean testMode = false;
 
     private Random rng = new Random(0);
-    private BoulderField field = new BoulderField(fieldWidth, fieldHeight, rng);
-    private BoulderMaker boulderMaker = new BoulderMaker(field, rng);
+    private BoulderPhysics physics = new BoulderPhysics(fieldWidth, fieldHeight, rng);
+    private BoulderMaker boulderMaker = new BoulderMaker(physics, rng);
 
     private int settledFor = 0;
 
     public void settings() {
-        //size (cellSize * fieldWidth, cellSize * fieldHeight);
+        //size (circleSize * fieldWidth, circleSize * fieldHeight);
         size(250, 350);
     }
 
@@ -31,8 +31,8 @@ public class BoulderDashProgress extends PApplet {
         ellipseMode(CORNER);
 
         if (testMode) {
-            field.addCell(2, 6);
-            field.addCell(2, 0);
+            physics.addBoulder(2, 6);
+            physics.addBoulder(2, 0);
         }
     }
 
@@ -48,7 +48,7 @@ public class BoulderDashProgress extends PApplet {
     private void drawField() {
         drawFieldBase();
 
-        for (Boulder boulder : field.getBoulders()) {
+        for (Boulder boulder : physics.getBoulders()) {
             if (boulder.settled) {
                 fill(color(0, 200, 0));
                 noStroke();
@@ -56,7 +56,7 @@ public class BoulderDashProgress extends PApplet {
                 noFill();
                 stroke(255);
             }
-            ellipse(boulder.x * cellSize, boulder.y * cellSize, cellSize, cellSize);
+            ellipse(boulder.x * circleSize, boulder.y * circleSize, circleSize, circleSize);
         }
     }
 
@@ -66,7 +66,7 @@ public class BoulderDashProgress extends PApplet {
 
         for (int x = 0; x < fieldWidth; x++) {
             for (int y = 0; y < fieldHeight; y++) {
-                ellipse(x * cellSize, y * cellSize, cellSize, cellSize);
+                ellipse(x * circleSize, y * circleSize, circleSize, circleSize);
             }
         }
     }
@@ -76,8 +76,8 @@ public class BoulderDashProgress extends PApplet {
         if (millis() - lastRecordedTime <= interval) {
             return;
         }
-        if (!field.allSettled()) {
-            field.iteration();
+        if (!physics.allSettled()) {
+            physics.update();
             settledFor = 0;
         }
         else {

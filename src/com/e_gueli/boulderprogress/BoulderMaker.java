@@ -5,20 +5,20 @@ import java.util.List;
 import java.util.Random;
 
 public class BoulderMaker {
-    private final BoulderField boulderField;
+    private final BoulderPhysics boulderPhysics;
     private final Random rng;
 
-    public BoulderMaker(BoulderField boulderField, Random rng) {
-        this.boulderField = boulderField;
+    public BoulderMaker(BoulderPhysics boulderPhysics, Random rng) {
+        this.boulderPhysics = boulderPhysics;
         this.rng = rng;
     }
 
     void makeBoulderAtTop() {
-        int fieldWidth = boulderField.getFieldWidth();
+        int fieldWidth = boulderPhysics.getFieldWidth();
         int[] heights = new int[fieldWidth];
         for (int x = 0; x < fieldWidth; x++) {
-            int y = boulderField.getFieldHeight() - 1;
-            while (y >= 0 && boulderField.cellAt(x, y) != null) {
+            int y = boulderPhysics.getFieldHeight() - 1;
+            while (y >= 0 && boulderPhysics.boulderAt(x, y) != null) {
                 y--;
             }
             heights[x] = y;
@@ -32,13 +32,13 @@ public class BoulderMaker {
         }
 
         if (availableColumns.isEmpty()) {
-            boulderField.clear();
+            boulderPhysics.clear();
             return;
         }
 
         int i = (int) (random(availableColumns.size()));
         int x = availableColumns.get(i);
-        boulderField.addCell(x, heights[x]);
+        boulderPhysics.addBoulder(x, heights[x]);
     }
 
     private int random(int max) {
