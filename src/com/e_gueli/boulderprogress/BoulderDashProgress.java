@@ -39,7 +39,7 @@ public class BoulderDashProgress extends PApplet {
         background(0);
 
         drawField();
-        updateField();
+//        updateField();
 
     }
 
@@ -79,6 +79,11 @@ public class BoulderDashProgress extends PApplet {
             boulderMaker.iteration();
         }
         lastRecordedTime = millis();
+    }
+
+    @Override
+    public void keyPressed() {
+        updateField();
     }
 
     public void runMain() {
