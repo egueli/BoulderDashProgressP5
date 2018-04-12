@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Random;
 
 public class BoulderMaker {
-    private int waitCount;
     private final BoulderField boulderField;
     private final Random rng;
 
@@ -14,20 +13,7 @@ public class BoulderMaker {
         this.rng = rng;
     }
 
-    void iteration() {
-        makeNewCells();
-    }
-
-    private void makeNewCells() {
-        if (!boulderField.allSettled()) {
-            waitCount = 5;
-            return;
-        }
-
-        waitCount--;
-        if (waitCount > 0) return;
-
-
+    void makeBoulderAtTop() {
         int fieldWidth = boulderField.getFieldWidth();
         int[] heights = new int[fieldWidth];
         for (int x = 0; x < fieldWidth; x++) {

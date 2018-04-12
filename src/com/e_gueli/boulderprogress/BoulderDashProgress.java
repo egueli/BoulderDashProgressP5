@@ -18,6 +18,8 @@ public class BoulderDashProgress extends PApplet {
     private BoulderField field = new BoulderField(fieldWidth, fieldHeight, rng);
     private BoulderMaker boulderMaker = new BoulderMaker(field, rng);
 
+    private int settledFor = 0;
+
     public void settings() {
         //size (cellSize * fieldWidth, cellSize * fieldHeight);
         size(250, 350);
@@ -39,7 +41,7 @@ public class BoulderDashProgress extends PApplet {
         background(0);
 
         drawField();
-//        updateField();
+        updateField();
 
     }
 
@@ -74,16 +76,19 @@ public class BoulderDashProgress extends PApplet {
         if (millis() - lastRecordedTime <= interval) {
             return;
         }
-        field.iteration();
-        if (!testMode) {
-            boulderMaker.iteration();
+        if (!field.allSettled()) {
+            field.iteration();
+            settledFor = 0;
+        }
+        else {
+            if (!testMode) {
+                settledFor++;
+                if (settledFor >= 5) {
+                    boulderMaker.makeBoulderAtTop();
+                }
+            }
         }
         lastRecordedTime = millis();
-    }
-
-    @Override
-    public void keyPressed() {
-        updateField();
     }
 
     public void runMain() {
