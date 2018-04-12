@@ -2,15 +2,18 @@ package com.e_gueli.boulderprogress;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 
 class BoulderField {
     private List<Boulder> boulders;
     private final int fieldWidth;
     private final int fieldHeight;
+    private final Random rng;
 
-    BoulderField(int fieldWidth, int fieldHeight) {
+    BoulderField(int fieldWidth, int fieldHeight, Random rng) {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
+        this.rng = rng;
         boulders = new LinkedList<>();
     }
 
@@ -81,7 +84,7 @@ class BoulderField {
         // Cells with an unstable base (i.e. with no left and no right boulder below)
         // will fall at a random side
         if (!baseLeft && !baseRight) {
-            int fallDirection = ((int) random(2) == 0) ? -1 : 1;
+            int fallDirection = (random(2) == 0) ? -1 : 1;
             System.out.println("random fall at direction " + fallDirection);
             return boulder.cloneDown(fallDirection);
         }
@@ -105,8 +108,8 @@ class BoulderField {
         return null;
     }
 
-    private double random(int max) {
-        return Math.random() * max;
+    private int random(int max) {
+        return rng.nextInt(max);
     }
 
     boolean allSettled() {

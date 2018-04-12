@@ -2,13 +2,16 @@ package com.e_gueli.boulderprogress;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class BoulderMaker {
     private int waitCount;
     private final BoulderField boulderField;
+    private final Random rng;
 
-    public BoulderMaker(BoulderField boulderField) {
+    public BoulderMaker(BoulderField boulderField, Random rng) {
         this.boulderField = boulderField;
+        this.rng = rng;
     }
 
     void iteration() {
@@ -52,7 +55,7 @@ public class BoulderMaker {
         boulderField.addCell(x, heights[x]);
     }
 
-    private double random(int max) {
-        return Math.random() * max;
+    private int random(int max) {
+        return rng.nextInt(max);
     }
 }

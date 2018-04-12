@@ -2,6 +2,8 @@ package com.e_gueli.boulderprogress;
 
 import processing.core.PApplet;
 
+import java.util.Random;
+
 public class BoulderDashProgress extends PApplet {
     private static final int cellSize = 50;
     private static final int fieldWidth = 5;
@@ -12,8 +14,9 @@ public class BoulderDashProgress extends PApplet {
 
     private static final boolean testMode = false;
 
-    private BoulderField field = new BoulderField(fieldWidth, fieldHeight);
-    private BoulderMaker boulderMaker = new BoulderMaker(field);
+    private Random rng = new Random(0);
+    private BoulderField field = new BoulderField(fieldWidth, fieldHeight, rng);
+    private BoulderMaker boulderMaker = new BoulderMaker(field, rng);
 
     public void settings() {
         //size (cellSize * fieldWidth, cellSize * fieldHeight);
