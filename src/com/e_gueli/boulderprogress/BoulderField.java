@@ -108,4 +108,13 @@ class BoulderField {
     private double random(int max) {
         return Math.random() * max;
     }
+
+    boolean allSettled() {
+        for (Boulder boulder : getBoulders()) {
+            if (!boulder.settled) {
+                return false;
+            }
+        }
+        return true;
+    }
 }

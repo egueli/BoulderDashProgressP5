@@ -16,15 +16,7 @@ public class BoulderMaker {
     }
 
     private void makeNewCells() {
-        boolean allSettled = true;
-        for (Boulder boulder : boulderField.getBoulders()) {
-            if (!boulder.settled) {
-                allSettled = false;
-                break;
-            }
-        }
-
-        if (!allSettled) {
+        if (!boulderField.allSettled()) {
             waitCount = 5;
             return;
         }
