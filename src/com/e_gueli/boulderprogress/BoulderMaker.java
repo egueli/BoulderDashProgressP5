@@ -18,7 +18,7 @@ public class BoulderMaker {
         int[] heights = new int[fieldWidth];
         for (int x = 0; x < fieldWidth; x++) {
             int y = boulderPhysics.getFieldHeight() - 1;
-            while (y >= 0 && boulderPhysics.boulderAt(x, y) != null) {
+            while (y >= 0 && boulderPhysics.getField().boulderAt(x, y) != null) {
                 y--;
             }
             heights[x] = y;

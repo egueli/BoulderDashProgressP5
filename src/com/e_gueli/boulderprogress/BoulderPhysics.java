@@ -1,11 +1,12 @@
 package com.e_gueli.boulderprogress;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 class BoulderPhysics {
-    private List<Boulder> boulders;
+    private BoulderFieldState field;
     private final int fieldWidth;
     private final int fieldHeight;
     private final Random rng;
@@ -14,17 +15,17 @@ class BoulderPhysics {
         this.fieldWidth = fieldWidth;
         this.fieldHeight = fieldHeight;
         this.rng = rng;
-        boulders = new LinkedList<>();
+        clear();
     }
 
     void update() {
         List<Boulder> newBoulders = new LinkedList<>();
 
-        for (Boulder boulder : boulders) {
+        for (Boulder boulder : field.getBoulders()) {
             newBoulders.add(updateBoulder(boulder));
         }
 
-        boulders = newBoulders;
+        field = new BoulderFieldState(fieldWidth, fieldHeight, newBoulders);
     }
 
     int getFieldWidth() {
@@ -35,20 +36,22 @@ class BoulderPhysics {
         return fieldHeight;
     }
 
-    Iterable<Boulder> getBoulders() {
-        return boulders;
+    BoulderFieldState getField() {
+        return field;
     }
 
     void addBoulder(int x, int y) {
-        if (boulderAt(x, y) != null) {
+        if (field.boulderAt(x, y) != null) {
             throw new IllegalStateException(String.format("there is already a boulder at (%d, %d)", x, y));
         }
 
-        boulders.add(new Boulder(x, y));
+        List<Boulder> newBoulders = new ArrayList<Boulder>(field.getBoulders());
+        newBoulders.add(new Boulder(x, y));
+        field = new BoulderFieldState(fieldWidth, fieldHeight, newBoulders);
     }
 
     void clear() {
-        boulders.clear();
+        field = new BoulderFieldState(fieldWidth, fieldHeight);
     }
 
     private Boulder updateBoulder(Boulder boulder) {
@@ -64,11 +67,11 @@ class BoulderPhysics {
 
         // From this below, the boulder is going to fall.
 
-        Boulder boulderBottomLeft = boulderAt(boulder.x - 1, boulder.y + 1);
+        Boulder boulderBottomLeft = field.boulderAt(boulder.x - 1, boulder.y + 1);
         boolean baseLeft = boulder.x == 0 || (boulderBottomLeft != null && boulderBottomLeft.settled);
-        Boulder boulderBottomCenter = boulderAt(boulder.x, boulder.y + 1);
+        Boulder boulderBottomCenter = field.boulderAt(boulder.x, boulder.y + 1);
         boolean baseCenter = boulderBottomCenter != null && boulderBottomCenter.settled;
-        Boulder boulderBottomRight = boulderAt(boulder.x + 1, boulder.y + 1);
+        Boulder boulderBottomRight = field.boulderAt(boulder.x + 1, boulder.y + 1);
         boolean baseRight = boulder.x == fieldWidth - 1 || (boulderBottomRight != null && boulderBottomRight.settled);
 
         // Boulders with a stable base stay still
@@ -99,25 +102,8 @@ class BoulderPhysics {
         }
     }
 
-    Boulder boulderAt(int x, int y) {
-        for (Boulder boulder : boulders) {
-            if (boulder.x == x && boulder.y == y) {
-                return boulder;
-            }
-        }
-        return null;
-    }
 
     private int random(int max) {
         return rng.nextInt(max);
-    }
-
-    boolean allSettled() {
-        for (Boulder boulder : getBoulders()) {
-            if (!boulder.settled) {
-                return false;
-            }
-        }
-        return true;
     }
 }

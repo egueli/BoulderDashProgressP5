@@ -48,7 +48,7 @@ public class BoulderDashProgress extends PApplet {
     private void drawField() {
         drawFieldBase();
 
-        for (Boulder boulder : physics.getBoulders()) {
+        for (Boulder boulder : physics.getField().getBoulders()) {
             if (boulder.settled) {
                 fill(color(0, 200, 0));
                 noStroke();
@@ -76,7 +76,7 @@ public class BoulderDashProgress extends PApplet {
         if (millis() - lastRecordedTime <= interval) {
             return;
         }
-        if (!physics.allSettled()) {
+        if (!physics.getField().allSettled()) {
             physics.update();
             settledFor = 0;
         }
