@@ -50,4 +50,12 @@ public class BoulderFieldState {
         }
         return true;
     }
+
+    public int getWidth() {
+        return fieldWidth;
+    }
+
+    public int getHeight() {
+        return fieldHeight;
+    }
 }
