@@ -22,6 +22,10 @@ public class BoulderDashProgress extends PApplet {
 
     private ArduinoBitmapSender bitmapSender = new ArduinoBitmapSender();
 
+    public static void main(String[] args) {
+        main(BoulderDashProgress.class.getName());
+    }
+
     public void settings() {
         //size (circleSize * fieldWidth, circleSize * fieldHeight);
         size(250, 350);
@@ -93,9 +97,4 @@ public class BoulderDashProgress extends PApplet {
         }
         lastRecordedTime = millis();
     }
-
-    public void runMain() {
-        main(BoulderDashProgress.class.getName());
-    }
-
 }
