@@ -1,9 +1,7 @@
 package com.e_gueli.boulderprogress;
 
 import processing.core.PApplet;
-import processing.serial.Serial;
 
-import java.util.Arrays;
 import java.util.Random;
 
 public class BoulderDashProgress extends PApplet {
@@ -39,7 +37,7 @@ public class BoulderDashProgress extends PApplet {
             physics.addBoulder(2, 0);
         }
 
-        bitmapSender.setup();
+        bitmapSender.setup(BoulderDashProgress.this);
     }
 
 
@@ -85,8 +83,7 @@ public class BoulderDashProgress extends PApplet {
         if (!physics.getField().allSettled()) {
             physics.update();
             settledFor = 0;
-        }
-        else {
+        } else {
             if (!testMode) {
                 settledFor++;
                 if (settledFor >= 5) {
@@ -101,43 +98,4 @@ public class BoulderDashProgress extends PApplet {
         main(BoulderDashProgress.class.getName());
     }
 
-    public static class ArduinoBitmapSender {
-        private Serial arduinoPort;
-        private String lastBitmapSent;
-
-        void setup() {
-//        String portName = Serial.list()[0];
-//        arduinoPort = new Serial(this, portName, 9600);
-        }
-
-        void sendFieldToArduino(BoulderFieldState fieldState) {
-            boolean[][] bitmap = fieldState.toArrayOfSettled();
-            byte[] columnBytes = new byte[fieldState.getHeight()];
-            for (int x = 0; x < fieldState.getWidth(); x++) {
-                byte columnByte = 0;
-                for (int y = 0; y < fieldState.getHeight(); y++) {
-                    columnByte |= (bitmap[x][y] ? 1 : 0) << y;
-                }
-                columnBytes[x] = columnByte;
-            }
-
-            String bitmapString = bytesToHex(columnBytes);
-            if (!bitmapString.equals(lastBitmapSent)) {
-                println(bitmapString);
-                lastBitmapSent = bitmapString;
-            }
-        }
-
-        private final static char[] hexArray = "0123456789ABCDEF".toLowerCase().toCharArray();
-
-        private static String bytesToHex(byte[] bytes) {
-            char[] hexChars = new char[bytes.length * 2];
-            for (int j = 0; j < bytes.length; j++) {
-                int v = bytes[j] & 0xFF;
-                hexChars[j * 2] = hexArray[v >>> 4];
-                hexChars[j * 2 + 1] = hexArray[v & 0x0F];
-            }
-            return new String(hexChars);
-        }
-    }
 }
