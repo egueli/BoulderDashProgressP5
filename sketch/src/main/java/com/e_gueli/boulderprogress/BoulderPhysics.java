@@ -12,10 +12,14 @@ class BoulderPhysics {
     private final Random rng;
 
     BoulderPhysics(int fieldWidth, int fieldHeight, Random rng) {
-        this.fieldWidth = fieldWidth;
-        this.fieldHeight = fieldHeight;
+        this(new BoulderFieldState(fieldWidth, fieldHeight), rng);
+    }
+
+    BoulderPhysics(BoulderFieldState initialState, Random rng) {
+        this.field = initialState;
+        this.fieldWidth = initialState.getWidth();
+        this.fieldHeight = initialState.getHeight();
         this.rng = rng;
-        clear();
     }
 
     void update() {
@@ -45,13 +49,9 @@ class BoulderPhysics {
             throw new IllegalStateException(String.format("there is already a boulder at (%d, %d)", x, y));
         }
 
-        List<Boulder> newBoulders = new ArrayList<Boulder>(field.getBoulders());
+        List<Boulder> newBoulders = new ArrayList<>(field.getBoulders());
         newBoulders.add(new Boulder(x, y));
         field = new BoulderFieldState(fieldWidth, fieldHeight, newBoulders);
-    }
-
-    void clear() {
-        field = new BoulderFieldState(fieldWidth, fieldHeight);
     }
 
     private Boulder updateBoulder(Boulder boulder) {

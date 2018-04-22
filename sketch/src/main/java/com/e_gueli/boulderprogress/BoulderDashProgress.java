@@ -2,25 +2,22 @@ package com.e_gueli.boulderprogress;
 
 import processing.core.PApplet;
 
-import java.util.Random;
+import java.util.*;
 
 public class BoulderDashProgress extends PApplet {
     private static final int circleSize = 50;
     private static final int fieldWidth = 5;
     private static final int fieldHeight = 7;
 
-    private static final int interval = 250;
-    private int lastRecordedTime = 0;
-
-    private static final boolean testMode = false;
-
     private Random rng = new Random(0);
-    private BoulderPhysics physics = new BoulderPhysics(fieldWidth, fieldHeight, rng);
-    private BoulderMaker boulderMaker = new BoulderMaker(physics, rng);
-
-    private int settledFor = 0;
 
     private ArduinoBitmapSender bitmapSender = new ArduinoBitmapSender();
+
+    /**
+     * The list of bitmaps, one for each amount of dots/boulders to show.
+     * The first item is empty, the next has one boulder, and so on.
+     */
+    private Deque<BoulderFieldState> stateStack = new LinkedList<>();
 
     public static void main(String[] args) {
         main(BoulderDashProgress.class.getName());
@@ -36,11 +33,6 @@ public class BoulderDashProgress extends PApplet {
         textAlign(CENTER, CENTER);
         ellipseMode(CORNER);
 
-        if (testMode) {
-            physics.addBoulder(2, 6);
-            physics.addBoulder(2, 0);
-        }
-
         bitmapSender.setup(BoulderDashProgress.this);
     }
 
@@ -50,13 +42,13 @@ public class BoulderDashProgress extends PApplet {
 
         updateField();
         drawField();
-        bitmapSender.sendFieldToArduino(physics.getField());
+        bitmapSender.sendFieldToArduino(stateStack.getLast());
     }
 
     private void drawField() {
         drawFieldBase();
 
-        for (Boulder boulder : physics.getField().getBoulders()) {
+        for (Boulder boulder : stateStack.getLast().getBoulders()) {
             if (boulder.settled) {
                 fill(color(0, 200, 0));
                 noStroke();
@@ -80,21 +72,32 @@ public class BoulderDashProgress extends PApplet {
     }
 
     private void updateField() {
-        // Iterate if timer ticks
-        if (millis() - lastRecordedTime <= interval) {
-            return;
+        int numDots = fieldHeight * fieldWidth;
+        int dotsToShow = (int) map(mouseY, circleSize * fieldHeight, 0, 0, numDots + 1);
+
+        while (stateStack.size() > dotsToShow + 1) {
+            stateStack.removeLast();
         }
-        if (!physics.getField().allSettled()) {
-            physics.update();
-            settledFor = 0;
+
+        while (stateStack.size() < dotsToShow) {
+            pushNewField();
+        }
+    }
+
+    private void pushNewField() {
+        BoulderPhysics physics;
+        if (stateStack.isEmpty()) {
+            physics = new BoulderPhysics(fieldWidth, fieldHeight, rng);
         } else {
-            if (!testMode) {
-                settledFor++;
-                if (settledFor >= 5) {
-                    boulderMaker.makeBoulderAtTop();
-                }
+            physics = new BoulderPhysics(stateStack.peekLast(), rng);
+            BoulderMaker boulderMaker = new BoulderMaker(physics, rng);
+
+            boulderMaker.makeBoulderAtTop();
+            while (!physics.getField().allSettled()) {
+                physics.update();
             }
         }
-        lastRecordedTime = millis();
+
+        stateStack.addLast(physics.getField());
     }
 }

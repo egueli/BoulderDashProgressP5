@@ -58,4 +58,12 @@ public class BoulderFieldState {
     public int getHeight() {
         return fieldHeight;
     }
+
+    @Override
+    public String toString() {
+        return "BoulderFieldState{" +
+                "ihc=" + System.identityHashCode(this) +
+                ", boulders.size=" + boulders.size() +
+                '}';
+    }
 }

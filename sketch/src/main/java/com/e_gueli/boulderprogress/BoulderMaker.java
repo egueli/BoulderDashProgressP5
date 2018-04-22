@@ -32,11 +32,10 @@ public class BoulderMaker {
         }
 
         if (availableColumns.isEmpty()) {
-            boulderPhysics.clear();
             return;
         }
 
-        int i = (int) (random(availableColumns.size()));
+        int i = random(availableColumns.size());
         int x = availableColumns.get(i);
         boulderPhysics.addBoulder(x, heights[x]);
     }
